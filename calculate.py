@@ -26,8 +26,6 @@ coin_list = []
 for comp in tickers :
     if (comp[:3] == 'KRW'):
         coin_list.append(comp)
-print(coin_list)
-
 
 coinName = "COSM"
 url = 'https://crix-api-endpoint.upbit.com/v1/crix/candles/days?code=CRIX.UPBIT.KRW-' + coinName + '&count=500';
