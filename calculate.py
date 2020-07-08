@@ -33,9 +33,10 @@ def get_prediction(coin_name) :
     price = df[str_1].values.tolist()
     #price = list(reversed(price))
     window_size = 10
+    '''
     if(len(price) < 399):
         return (0)
-    '''
+        
     x = []
     y = []
 
@@ -79,9 +80,9 @@ def get_prediction(coin_name) :
     '''
     new_value = []
     new_value.append(price[-1])
-    price = price[:399]
     
-    prediction_num = 1
+    
+    prediction_num = 3
     for i in range(prediction_num) :
         new_array = [price[window_size * (-1) :]]
         new_array = np.asarray(new_array)
@@ -90,9 +91,13 @@ def get_prediction(coin_name) :
         new_predict = model.predict(new_predict)
         price.append(new_predict[-1][-1])
 
+
+    price = [price]
+    price = scaler.inverse_transform(price)
+    price = price[0].tolist()
     
     plt.figure(figsize=(10,10))
-    plt.plot(price)
+    plt.plot(price[399:])
     
     #split_pt = train_test_split + window_size
     #plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
@@ -100,31 +105,24 @@ def get_prediction(coin_name) :
 
     plt.savefig('./graph/' + coin_name + '.png', dpi=300)
     plt.close()
-    
-    
-    price = [price]
-    price = scaler.inverse_transform(price)
-    price = price[0].tolist()
-    
+        
     tomorrow = len(price) - prediction_num
     today = tomorrow - 1
     #print((price[tomorrow] - price[today]) / price[tomorrow] * 100)
     return ((price[tomorrow] - price[today]) / price[tomorrow] * 100)
 
+def calculate():
+
+    coin_list = ['BTC', 'ETH', 'BTC', 'LTC', 'XRP', 'ADA']
+    predict_list = []
+
+    for coin_name in coin_list:
+        predict_list.append([coin_name, get_prediction(coin_name)])
+
+    predict_dict = dict(predict_list)
+    predict_dict = sorted(predict_dict.items(), key=lambda x: x[1], reverse=True)
+    return (predict_dict)
+
 access_key = 'UFcvGCeCy7NwwmIrDvxw0BCVxqqWbKiJgMHskv1C'
 secret_key = '8rAk5yJao8waywxZztviffUbLkTd2LYWZs28Z5j7'
 #print(upbit.Upbit(access_key, secret_key).get_balances())
-
-coin_list = ['BTC', 'ETH', 'BTC', 'LTC', 'XRP', 'ADA']
-predict_list = []
-
-for coin_name in coin_list:
-    predict_list.append([coin_name, get_prediction(coin_name)])
-
-predict_dict = dict(predict_list)
-predict_dict = sorted(predict_dict.items(), key=lambda x: x[1], reverse=True)
-print(predict_dict)
-    
-    
-
-
