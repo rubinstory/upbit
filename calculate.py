@@ -12,6 +12,8 @@ from sklearn.preprocessing import MinMaxScaler
 import pyupbit as upbit
 import os
 
+coin_list = ['BTC', 'ETH', 'BCH', 'LTC', 'XRP', 'ADA']
+
 def get_prediction(coin_name) :
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWeb\
             Kit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -33,9 +35,6 @@ def get_prediction(coin_name) :
     price = df[str_1].values.tolist()
     #price = list(reversed(price))
     window_size = 10
-    '''
-    if(len(price) < 399):
-        return (0)
         
     x = []
     y = []
@@ -58,7 +57,7 @@ def get_prediction(coin_name) :
     x_train = x_train.reshape(x_train.shape[0], window_size, 1)
     x_test = x_test.reshape(x_test.shape[0], window_size, 1)
 
-    
+    '''
     model = Sequential()
     model.add(LSTM(128, input_shape = (10,1,)))
     model.add(Dropout(0.25))
@@ -74,10 +73,10 @@ def get_prediction(coin_name) :
     #model = load_model('./model/BTC.h5')
     # model.h5 is a deep learning model, based on daily trade data.
 
-    '''
+    
     train_predict = model.predict(x_train)
     test_predict = model.predict(x_test)
-    '''
+    
     new_value = []
     new_value.append(price[-1])
     
@@ -90,37 +89,28 @@ def get_prediction(coin_name) :
         new_predict = new_array.reshape(new_array.shape[0], window_size, 1)
         new_predict = model.predict(new_predict)
         price.append(new_predict[-1][-1])
+    
+    plt.figure(figsize=(10,10))
+    plt.plot(price)
+    
+    split_pt = train_test_split + window_size
+    plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
+    plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
 
-
+    plt.savefig('./graph/' + coin_name + '.png', dpi=300)
+    plt.close()
+    
     price = [price]
     price = scaler.inverse_transform(price)
     price = price[0].tolist()
     
-    plt.figure(figsize=(10,10))
-    plt.plot(price[399:])
-    
-    #split_pt = train_test_split + window_size
-    #plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
-    #plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
-
-    plt.savefig('./graph/' + coin_name + '.png', dpi=300)
-    plt.close()
-        
     tomorrow = len(price) - prediction_num
     today = tomorrow - 1
     #print((price[tomorrow] - price[today]) / price[tomorrow] * 100)
     return ((price[tomorrow] - price[today]) / price[tomorrow] * 100)
 
-def calculate():
-
-    coin_list = ['BTC', 'ETH', 'BTC', 'LTC', 'XRP', 'ADA']
-    predict_list = []
-
-    for coin_name in coin_list:
-        predict_list.append([coin_name, get_prediction(coin_name)])
-
-    predict_dict = dict(predict_list)
-    predict_dict = sorted(predict_dict.items(), key=lambda x: x[1], reverse=True)
+def calculate(coin_name):
+    predict_dict = get_prediction(coin_name)
     return (predict_dict)
 
 access_key = 'UFcvGCeCy7NwwmIrDvxw0BCVxqqWbKiJgMHskv1C'
