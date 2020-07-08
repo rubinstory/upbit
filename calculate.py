@@ -14,6 +14,21 @@ import os
 
 coin_list = ['BTC', 'ETH', 'BCH', 'LTC', 'XRP', 'ADA']
 
+def get_price(coin_name) :
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWeb\
+            Kit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    url = 'https://crix-api-endpoint.upbit.com/v1/crix/candles/days?code=CRIX.UPBIT.KRW-' + coin_name + '&count=1';
+
+    try:
+        res = requests.get(url, headers=headers)
+    except requests.exceptions.HTTPError as err:
+        print (err)
+        exit(1)
+
+    data = res.json() # json 구조로 변환
+    price = data[0]
+    return(price)
+
 def get_prediction(coin_name) :
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWeb\
             Kit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -35,7 +50,8 @@ def get_prediction(coin_name) :
     price = df[str_1].values.tolist()
     #price = list(reversed(price))
     window_size = 10
-        
+    
+    '''
     x = []
     y = []
 
@@ -57,7 +73,7 @@ def get_prediction(coin_name) :
     x_train = x_train.reshape(x_train.shape[0], window_size, 1)
     x_test = x_test.reshape(x_test.shape[0], window_size, 1)
 
-    '''
+    
     model = Sequential()
     model.add(LSTM(128, input_shape = (10,1,)))
     model.add(Dropout(0.25))
@@ -91,11 +107,11 @@ def get_prediction(coin_name) :
         price.append(new_predict[-1][-1])
     
     plt.figure(figsize=(10,10))
-    plt.plot(price)
+    plt.plot(price[399:])
     
-    split_pt = train_test_split + window_size
-    plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
-    plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
+    #split_pt = train_test_split + window_size
+    #plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
+    #plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
 
     plt.savefig('./graph/' + coin_name + '.png', dpi=300)
     plt.close()
