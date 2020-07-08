@@ -56,6 +56,7 @@ def get_prediction(coin_name) :
 
     x_train = x_train.reshape(x_train.shape[0], window_size, 1)
     x_test = x_test.reshape(x_test.shape[0], window_size, 1)
+
     
     model = Sequential()
     model.add(LSTM(128, input_shape = (10,1,)))
@@ -71,12 +72,15 @@ def get_prediction(coin_name) :
     model = load_model('./model/' + coin_name + '.h5')
     #model = load_model('./model/BTC.h5')
     # model.h5 is a deep learning model, based on daily trade data.
-    #train_predict = model.predict(x_train)
-    #test_predict = model.predict(x_test)
-    
+
+    '''
+    train_predict = model.predict(x_train)
+    test_predict = model.predict(x_test)
+    '''
     new_value = []
     new_value.append(price[-1])
-
+    price = price[:399]
+    
     prediction_num = 1
     for i in range(prediction_num) :
         new_array = [price[window_size * (-1) :]]
@@ -86,21 +90,21 @@ def get_prediction(coin_name) :
         new_predict = model.predict(new_predict)
         price.append(new_predict[-1][-1])
 
-    price = [price]
-    price = scaler.inverse_transform(price)
-    price = price[0].tolist()
-
-    '''
-    plt.figure(figsize=(10,10))
-    plt.plot(price[399:])
     
-    split_pt = train_test_split + window_size
-    plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
-    plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
+    plt.figure(figsize=(10,10))
+    plt.plot(price)
+    
+    #split_pt = train_test_split + window_size
+    #plt.plot(np.arange(window_size, split_pt, ), train_predict, color='g')
+    #plt.plot(np.arange(split_pt, split_pt + len(test_predict), 1), test_predict, color='r')
 
     plt.savefig('./graph/' + coin_name + '.png', dpi=300)
     plt.close()
-    '''
+    
+    
+    price = [price]
+    price = scaler.inverse_transform(price)
+    price = price[0].tolist()
     
     tomorrow = len(price) - prediction_num
     today = tomorrow - 1
@@ -111,12 +115,10 @@ access_key = 'UFcvGCeCy7NwwmIrDvxw0BCVxqqWbKiJgMHskv1C'
 secret_key = '8rAk5yJao8waywxZztviffUbLkTd2LYWZs28Z5j7'
 #print(upbit.Upbit(access_key, secret_key).get_balances())
 
-path = './model'
-coin_list = os.listdir(path)
+coin_list = ['BTC', 'ETH', 'BTC', 'LTC', 'XRP', 'ADA']
 predict_list = []
 
-for comp in coin_list:
-    coin_name = comp[:-3]
+for coin_name in coin_list:
     predict_list.append([coin_name, get_prediction(coin_name)])
 
 predict_dict = dict(predict_list)
