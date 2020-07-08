@@ -90,12 +90,11 @@ def get_prediction(coin_name) :
     # model.h5 is a deep learning model, based on daily trade data.
 
     
-    train_predict = model.predict(x_train)
-    test_predict = model.predict(x_test)
+    #train_predict = model.predict(x_train)
+    #test_predict = model.predict(x_test)
     
     new_value = []
     new_value.append(price[-1])
-    
     
     prediction_num = 3
     for i in range(prediction_num) :
@@ -106,6 +105,10 @@ def get_prediction(coin_name) :
         new_predict = model.predict(new_predict)
         price.append(new_predict[-1][-1])
     
+    price = [price]
+    price = scaler.inverse_transform(price)
+    price = price[0].tolist()
+    
     plt.figure(figsize=(10,10))
     plt.plot(price[399:])
     
@@ -115,10 +118,6 @@ def get_prediction(coin_name) :
 
     plt.savefig('./graph/' + coin_name + '.png', dpi=300)
     plt.close()
-    
-    price = [price]
-    price = scaler.inverse_transform(price)
-    price = price[0].tolist()
     
     tomorrow = len(price) - prediction_num
     today = tomorrow - 1
